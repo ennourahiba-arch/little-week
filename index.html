@@ -509,10 +509,13 @@
       }
       const data = await response.json();
       const candidate = data.candidates && data.candidates[0];
-      if(!candidate || !candidate.content || !candidate.content.parts || !candidate.content.parts[0]){
+      const parts = candidate && candidate.content && candidate.content.parts;
+
+      if(!parts || !parts.length){
         throw new Error('Unexpected response from Gemini API');
       }
-      let raw = (candidate.content.parts[0].text || '').trim();
+
+      let raw = (parts[0].text || '').trim();
       raw = raw.replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
       const items = JSON.parse(raw);
       if(!Array.isArray(items) || items.length===0){
