@@ -208,12 +208,12 @@
       <span class="status" id="parseStatus"></span>
     </div>
     <details id="settingsBlock" style="margin-top:14px;">
-      <summary style="cursor:pointer;font-family:'Baloo 2',sans-serif;font-weight:600;font-size:13px;color:var(--ink-dim);">⚙️ Settings — API key (needed for auto-sorting)</summary>
+      <summary style="cursor:pointer;font-family:'Baloo 2',sans-serif;font-weight:600;font-size:13px;color:var(--ink-dim);">⚙️ Settings — free API key (needed for auto-sorting)</summary>
       <div class="add-row" style="margin-top:10px;">
         <input type="text" id="apiKeyInput" placeholder="AIza..." style="flex:1;min-width:200px;">
         <button type="button" class="btn secondary small" id="saveKeyBtn">Save key</button>
       </div>
-      <p style="font-size:12px;color:var(--ink-dim);margin:8px 0 0;">Stored only in this browser. Get a free Gemini key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--pink-dark);">aistudio.google.com</a>. Not needed if you'd rather add tasks manually below.</p>
+      <p style="font-size:12px;color:var(--ink-dim);margin:8px 0 0;">Free, no card needed. Get a key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--pink-dark);">aistudio.google.com/apikey</a> (sign in with Google). Stored only in this browser. Not needed if you'd rather add tasks manually below.</p>
     </details>
   </div>
 
@@ -468,7 +468,7 @@
     }
     const apiKey = localStorage.getItem('planner:geminiKey');
     if(!apiKey){
-      statusEl.textContent = 'Add your Gemini API key in Settings below first, or add tasks manually.';
+      statusEl.textContent = 'Add your free Gemini API key in Settings below first, or add tasks manually.';
       statusEl.className = 'status err';
       document.getElementById('settingsBlock').setAttribute('open','');
       return;
@@ -508,14 +508,9 @@
         throw new Error((errBody.error && errBody.error.message) || 'API request failed');
       }
       const data = await response.json();
-      const candidate = data.candidates && data.candidates[0];
-      const parts = candidate && candidate.content && candidate.content.parts;
-
-      if(!parts || !parts.length){
-        throw new Error('Unexpected response from Gemini API');
-      }
-
-      let raw = (parts[0].text || '').trim();
+      let raw = ((data.candidates && data.candidates[0] && data.candidates[0].content &&
+                  data.candidates[0].content.parts && data.candidates[0].content.parts[0] &&
+                  data.candidates[0].content.parts[0].text) || '').trim();
       raw = raw.replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
       const items = JSON.parse(raw);
       if(!Array.isArray(items) || items.length===0){
